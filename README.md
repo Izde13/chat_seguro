@@ -36,6 +36,7 @@ sequenceDiagram
   S-->>C: {"type":"encryption_key","key":"<base64>"}
   C->>S: {"type":"chat_message","content":"<fernet>"}
   S-->>Todos: {"type":"chat_message","username":"Alice","content":"<fernet>"}
+```
 
 ▶️ Ejemplo (local)
 
