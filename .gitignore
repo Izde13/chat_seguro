@@ -1,0 +1,82 @@
+# Archivos de entorno y configuración
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.*
+
+# Entornos virtuales de Python
+.venv/
+venv/
+ENV/
+env/
+.virtualenv/
+
+# Archivos compilados de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribución / empaquetado
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Archivos de logs
+*.log
+logs/
+
+# Archivos temporales
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# IDE y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Archivos de certificados (para desarrollo)
+*.pem
+*.key
+*.crt
+*.cert
+
+# Archivos de backup
+*.bak
+*.backup
+
+# Archivos de configuración local específicos del proyecto
+config.local.json
+settings.local.py
