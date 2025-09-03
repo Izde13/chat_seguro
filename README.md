@@ -1,94 +1,62 @@
-project: Secure Chat (Python, WebSockets, Fernet, ngrok)
+# 🔐 Secure Chat (Python, WebSockets, Fernet, ngrok)
 
-description: |
-  Chat seguro multi-cliente implementado en Python usando WebSockets.
-  El servidor genera una clave Fernet (cifrado simétrico AES-128 + HMAC-SHA256)
-  y la comparte con los clientes al registrarse. Todos los mensajes se
-  transmiten cifrados. El proyecto puede exponerse en Internet mediante ngrok,
-  usando WSS (TLS) para asegurar el transporte.
+Chat seguro multi-cliente implementado en **Python** usando **WebSockets** y cifrado **Fernet**.  
+El servidor genera una clave simétrica y la comparte con los clientes al registrarse.  
+Todos los mensajes se transmiten cifrados, y se puede exponer con **ngrok** usando **WSS (TLS)**.
 
-theory:
-  websockets: |
-    - Protocolo full-duplex sobre TCP.
-    - Permite chat en tiempo real sin abrir múltiples conexiones HTTP.
-  fernet: |
-    - Cifrado simétrico (AES-128/CBC + HMAC-SHA256).
-    - Garantiza confidencialidad e integridad de mensajes.
-    - Los mensajes viajan como tokens base64 fáciles de transportar.
-  ngrok: |
-    - Proporciona URL pública sin configuración de router o DNS.
-    - Convierte conexiones locales en https:// → wss:// con TLS habilitado.
+---
 
-workflow:
-  steps:
-    - Servidor arranca y genera clave Fernet.
-    - Cliente se conecta y envía {"type": "register", "username": "..."}.
-    - Servidor responde con {"type": "encryption_key","key":"<base64>"}.
-    - Cliente cifra mensajes con Fernet y los envía al servidor.
-    - Servidor valida, descifra y re-cifra para hacer broadcast.
-    - Otros clientes reciben y descifran los mensajes.
+## 🧠 Teoría
 
-example_local:
-  server: |
-    $ python3 server.py
-  client_1: |
-    $ python3 client.py
-    ¿Usar ngrok? (y/n): n
-    Host del servidor: localhost
-    Puerto: 8765
-    Usuario: Alice
-  client_2: |
-    $ python3 client.py
-    ¿Usar ngrok? (y/n): n
-    Host del servidor: localhost
-    Puerto: 8765
-    Usuario: Bob
-  interaction: |
-    - Alice escribe: "Hola Bob!"
-    - Bob ve: [12:34:56] Alice: Hola Bob!
+### WebSockets
+- Protocolo full-duplex sobre TCP.
+- Ideal para chat en tiempo real.
+- Mantiene la conexión abierta (sin múltiples requests HTTP).
 
-run_with_ngrok:
-  steps:
-    - Ejecuta: python3 server.py
-    - Abre túnel: ngrok http 8765
-    - Copia la URL pública: https://abcd.ngrok.app
-    - Cliente: selecciona "¿Usar ngrok? y" e ingresa abcd.ngrok.app
+### Fernet (cryptography)
+- Cifrado simétrico (AES-128/CBC + HMAC-SHA256).
+- Garantiza **confidencialidad e integridad**.
+- Los mensajes viajan como tokens base64 fáciles de transportar.
 
-requirements:
-  python: ">=3.10"
-  dependencies:
-    - websockets
-    - cryptography
-  setup: |
-    $ python3 -m venv .venv
-    $ source .venv/bin/activate
-    $ pip install websockets cryptography
+### Ngrok
+- Genera una URL pública para tu servidor local.
+- Convierte conexiones locales en `https://` → `wss://` con **TLS** habilitado.
 
-security:
-  why_secure: |
-    - Mensajes viajan sobre TLS (cuando se usa wss:// con ngrok).
-    - Fernet cifra + autentica cada mensaje.
-    - Validaciones de tamaño y rate limiting previenen abusos.
-  limitation: |
-    - El servidor ve los mensajes en claro (no es E2E).
-    - Para E2E real se requiere intercambio de claves por cliente
-      (ej. X25519) y cifrado adicional extremo a extremo.
+---
 
-diagram:
-  architecture: |
-    Cliente A ---- WSS/TLS ----> Servidor <---- WSS/TLS ---- Cliente B
-       |                                              |
-       +--- Mensajes Fernet cifrados -----------------+
+## ⚙️ Flujo del sistema
 
-  sequence: |
-    Cliente → Servidor: {"type":"register","username":"Alice"}
-    Servidor → Cliente: {"type":"encryption_key","key":"<b64>"}
-    Cliente → Servidor: {"type":"chat_message","content":"<fernet>"}
-    Servidor → Todos: {"type":"chat_message","username":"Alice","content":"<fernet>"}
+```mermaid
+sequenceDiagram
+  participant C as Cliente
+  participant S as Servidor
 
-files:
-  - server.py: Servidor WebSocket, registro, validaciones, broadcast, cifrado.
-  - client.py: Cliente interactivo, conexión segura, cifrado/descifrado, input por consola.
+  C->>S: CONNECT (ws/wss)
+  C->>S: {"type":"register","username":"Alice"}
+  S-->>C: {"type":"encryption_key","key":"<base64>"}
+  C->>S: {"type":"chat_message","content":"<fernet>"}
+  S-->>Todos: {"type":"chat_message","username":"Alice","content":"<fernet>"}
 
-license: |
-  Uso educativo y libre. Modifica y distribuye para tus talleres o laboratorios.
+▶️ Ejemplo (local)
+
+python3 server.py
+
+python3 client.py
+¿Usar ngrok? (y/n): n
+Host: localhost
+Puerto: 8765
+Usuario: Alice
+
+python3 client.py
+¿Usar ngrok? (y/n): n
+Host: localhost
+Puerto: 8765
+Usuario: Bob
+
+
+🔐 ¿Por qué es seguro?
+
+Confidencialidad en tránsito: con wss:// los mensajes viajan bajo TLS.
+Cifrado en aplicación: Fernet protege contenido (AES + HMAC).
+Integridad: HMAC-SHA256 garantiza que nadie alteró el mensaje.
+Defensas adicionales: validación de tamaños, rate limiting y sanitización.
